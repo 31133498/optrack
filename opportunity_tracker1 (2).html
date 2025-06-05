@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Opportunity Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .controls h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .requirements-container {
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .requirement-item {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .requirement-item input {
+            flex: 1;
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+
+        .remove-req {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-requirement {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            margin-left: 10px;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .search-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-filter input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .opportunities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .opportunity-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .opportunity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .opportunity-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .opportunity-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .deadline {
+            padding: 8px 12px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            align-self: flex-start;
+        }
+
+        .deadline.upcoming {
+            background: #ffa726;
+        }
+
+        .deadline.safe {
+            background: #66bb6a;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .requirements-list {
+            margin-bottom: 20px;
+        }
+
+        .requirements-list h4 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .requirement-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s ease;
+        }
+
+        .requirement-check:hover {
+            background: #f8f9fa;
+        }
+
+        .requirement-check input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .requirement-check.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #3742fa;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2f3542;
+        }
+
+        .btn-delete {
+            background: #ff4757;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ff3838;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e1e1;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .auth-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .auth-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+
+        .user-profile {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-details h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .user-details p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: #ff3838;
+        }
+
+        .app-content {
+            display: none;
+        }
+
+        .app-content.active {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+
+        .no-opportunities {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 40px 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                padding: 20px;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .opportunities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Opportunity Tracker</h1>
+            <p>Track and manage your personal opportunities</p>
+        </div>
+
+        <!-- Authentication Section -->
+        <div id="auth-section" class="auth-container">
+            <h2>Sign In</h2>
+            <button id="google-signin-btn" class="btn" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:24px;height:24px;">
+                Sign in with Google
+            </button>
+        </div>
+
+        <!-- User Profile Section -->
+        <div id="user-profile" class="user-profile hidden">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar"></div>
+                <div class="user-details">
+                    <h3 id="user-name">User Name</h3>
+                    <p id="user-email">user@email.com</p>
+                </div>
+            </div>
+            <button class="btn-logout" id="logout-btn">Sign Out</button>
+        </div>
+
+        <!-- App Content -->
+        <div id="app-content" class="app-content">
+
+        <!-- Add/Edit Form -->
+        <div class="controls">
+            <h2 id="form-title">Add New Opportunity</h2>
+            <form id="opportunity-form">
+                <div class="form-group">
+                    <label for="title">Opportunity Title *</label>
+                    <input type="text" id="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" placeholder="Describe the opportunity..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="link">External Link</label>
+                    <input type="url" id="link" placeholder="https://...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="deadline">Application Deadline *</label>
+                    <input type="date" id="deadline" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Requirements Checklist</label>
+                    <div class="requirements-container">
+                        <div id="requirements-list">
+                            <div class="requirement-item">
+                                <input type="text" placeholder="Enter requirement..." class="requirement-input">
+                                <button type="button" class="remove-req">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-requirement">+ Add Requirement</button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" id="submit-btn">Add Opportunity</button>
+                <button type="button" class="btn btn-cancel hidden" id="cancel-btn">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-filter">
+            <input type="text" id="search-input" placeholder="Search opportunities...">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="upcoming">Upcoming (7 days)</button>
+                <button class="filter-btn" data-filter="overdue">Overdue</button>
+            </div>
+        </div>
+
+        <!-- Opportunities Display -->
+        <div id="loading" class="loading">Loading opportunities...</div>
+        <div id="no-opportunities" class="no-opportunities hidden">No opportunities found. Add your first opportunity above!</div>
+        <div id="opportunities-grid" class="opportunities-grid"></div>
+        
+        </div> <!-- End app-content -->
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            doc, 
+            updateDoc, 
+            deleteDoc, 
+            query, 
+            orderBy, 
+            where 
+        } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+    apiKey: "AIzaSyAIJ0yWpmypu6YtnuZGlIl1_-gZm8CehWs",
+    authDomain: "opportunity-tracker-728e2.firebaseapp.com",
+    projectId: "opportunity-tracker-728e2",
+    storageBucket: "opportunity-tracker-728e2.firebasestorage.app",
+    messagingSenderId: "911316155465",
+    appId: "1:911316155465:web:3e093aacbee7436d319398"
+  };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        const opportunitiesRef = collection(db, 'opportunities');
+
+        // Global variables
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let editingId = null;
+        let opportunities = [];
+        let currentUser = null;
+
+        // DOM elements
+        const authSection = document.getElementById('auth-section');
+        const userProfile = document.getElementById('user-profile');
+        const appContent = document.getElementById('app-content');
+        const googleSignInBtn = document.getElementById('google-signin-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const form = document.getElementById('opportunity-form');
+        const searchInput = document.getElementById('search-input');
+        const opportunitiesGrid = document.getElementById('opportunities-grid');
+        const loading = document.getElementById('loading');
+        const noOpportunities = document.getElementById('no-opportunities');
+        const formTitle = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const addRequirementBtn = document.querySelector('.add-requirement');
+        const requirementsList = document.getElementById('requirements-list');
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            setupAuthStateListener();
+        });
+
+        function setupEventListeners() {
+            // Auth buttons
+            if (googleSignInBtn) {
+                googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+            }
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleSignOut);
+            }
+
+            // Form elements
+            if (form) {
+                form.addEventListener('submit', handleSubmit);
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', cancelEdit);
+            }
+            
+            if (addRequirementBtn) {
+                addRequirementBtn.addEventListener('click', addRequirement);
+            }
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', handleSearch);
+            }
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    filterAndDisplayOpportunities();
+                });
+            });
+            
+            // Requirements list delegation
+            if (requirementsList) {
+                requirementsList.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-req')) {
+                        removeRequirement(e.target);
+                    }
+                });
+            }
+        }
+
+        function setupAuthStateListener() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showAppContent();
+                    updateUserProfile();
+                    loadOpportunities();
+                } else {
+                    currentUser = null;
+                    showAuthSection();
+                }
+            });
+        }
+
+        async function handleGoogleSignIn() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                // User is signed in, onAuthStateChanged will handle UI
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                alert('Failed to sign in with Google. Please try again.');
+            }
+        }
+
+        async function handleSignOut() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Sign out error:', error);
+                alert('Error signing out. Please try again.');
+            }
+        }
+
+        function showAuthSection() {
+            if (authSection) authSection.classList.remove('hidden');
+            if (userProfile) userProfile.classList.add('hidden');
+            if (appContent) appContent.classList.remove('active');
+        }
+
+        function showAppContent() {
+            if (authSection) authSection.classList.add('hidden');
+            if (userProfile) userProfile.classList.remove('hidden');
+            if (appContent) appContent.classList.add('active');
+        }
+
+        function updateUserProfile() {
+            if (currentUser) {
+                const userName = currentUser.displayName || 'User';
+                const userEmail = currentUser.email;
+                const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+                
+                if (document.getElementById('user-name')) {
+                    document.getElementById('user-name').textContent = userName;
+                }
+                if (document.getElementById('user-email')) {
+                    document.getElementById('user-email').textContent = userEmail;
+                }
+                if (document.getElementById('user-avatar')) {
+                    document.getElementById('user-avatar').textContent = initials;
+                }
+            }
+        }
+
+        async function loadOpportunities() {
+            if (!currentUser) return;
+            
+            try {
+                if (loading) loading.classList.remove('hidden');
+                const q = query(
+                    opportunitiesRef, 
+                    where('userId', '==', currentUser.uid),
+                    orderBy('deadline', 'asc')
+                );
+                const snapshot = await getDocs(q);
+                opportunities = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                filterAndDisplayOpportunities();
+            } catch (error) {
+                console.error('Error loading opportunities:', error);
+                alert('Error loading opportunities. Please check your Firebase configuration.');
+            } finally {
+                if (loading) loading.classList.add('hidden');
+            }
+        }
+
+        function handleSearch() {
+            currentSearch = searchInput.value.toLowerCase();
+            filterAndDisplayOpportunities();
+        }
+
+        function filterAndDisplayOpportunities() {
+            let filtered = opportunities;
+
+            // Apply search filter
+            if (currentSearch) {
+                filtered = filtered.filter(opp => 
+                    opp.title.toLowerCase().includes(currentSearch) ||
+                    (opp.description && opp.description.toLowerCase().includes(currentSearch))
+                );
+            }
+
+            // Apply date filter
+            const now = new Date();
+            const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+            if (currentFilter === 'upcoming') {
+                filtered = filtered.filter(opp => {
+                    const deadline = new Date(opp.deadline);
+                    return deadline >= now && deadline <= sevenDaysFromNow;
+                });
+            } else if (currentFilter === 'overdue') {
+                filtered = filtered.filter(opp => {
+                    const deadline = new Date(opp.deadline);
+                    return deadline < now;
+                });
+            }
+
+            displayOpportunities(filtered);
+        }
+
+        function displayOpportunities(opportunitiesList) {
+            if (!opportunitiesGrid) return;
+            
+            if (opportunitiesList.length === 0) {
+                if (noOpportunities) noOpportunities.classList.remove('hidden');
+                opportunitiesGrid.innerHTML = '';
+                return;
+            }
+
+            if (noOpportunities) noOpportunities.classList.add('hidden');
+            opportunitiesGrid.innerHTML = opportunitiesList.map(opp => createOpportunityCard(opp)).join('');
+        }
+
+        function createOpportunityCard(opportunity) {
+            const deadline = new Date(opportunity.deadline);
+            const now = new Date();
+            const daysUntilDeadline = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+            
+            let deadlineClass = 'safe';
+            if (daysUntilDeadline < 0) {
+                deadlineClass = 'deadline';
+            } else if (daysUntilDeadline <= 7) {
+                deadlineClass = 'upcoming';
+            }
+
+            const requirements = opportunity.requirements || [];
+            const completedRequirements = requirements.filter(req => req.completed).length;
+            const progressPercent = requirements.length ? (completedRequirements / requirements.length) * 100 : 0;
+
+            return `
+                <div class="opportunity-card">
+                    <h3>${opportunity.title}</h3>
+                    <div class="opportunity-meta">
+                        <div class="deadline ${deadlineClass}">
+                            Deadline: ${deadline.toLocaleDateString()}
+                            ${daysUntilDeadline < 0 ? ' (Overdue)' : daysUntilDeadline <= 7 ? ` (${daysUntilDeadline} days)` : ''}
+                        </div>
+                    </div>
+                    
+                    ${opportunity.description ? `<div class="description">${opportunity.description}</div>` : ''}
+                    
+                    ${opportunity.link ? `<a href="${opportunity.link}" target="_blank" class="link">View Opportunity →</a>` : ''}
+                    
+                    ${requirements.length ? `
+                        <div class="requirements-list">
+                            <h4>Requirements (${completedRequirements}/${requirements.length})</h4>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                            ${requirements.map((req, index) => `
+                                <div class="requirement-check ${req.completed ? 'completed' : ''}">
+                                    <input type="checkbox" ${req.completed ? 'checked' : ''} 
+                                           data-opp-id="${opportunity.id}" data-req-index="${index}">
+                                    <span>${req.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="card-actions">
+                        <button class="btn-small btn-edit" data-opp-id="${opportunity.id}">Edit</button>
+                        <button class="btn-small btn-delete" data-opp-id="${opportunity.id}">Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const link = document.getElementById('link').value;
+            const deadline = document.getElementById('deadline').value;
+            
+            const requirements = [];
+            document.querySelectorAll('.requirement-input').forEach(input => {
+                if (input.value.trim()) {
+                    requirements.push({
+                        text: input.value.trim(),
+                        completed: false
+                    });
+                }
+            });
+
+            const opportunityData = {
+                title,
+                description,
+                link,
+                deadline,
+                requirements,
+                userId: currentUser.uid,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                if (editingId) {
+                    const docRef = doc(db, 'opportunities', editingId);
+                    await updateDoc(docRef, opportunityData);
+                } else {
+                    await addDoc(opportunitiesRef, opportunityData);
+                }
+                
+                form.reset();
+                resetRequirements();
+                cancelEdit();
+                loadOpportunities();
+            } catch (error) {
+                console.error('Error saving opportunity:', error);
+                alert('Error saving opportunity. Please try again.');
+            }
+        }
+
+        function editOpportunity(id) {
+            const opportunity = opportunities.find(opp => opp.id === id);
+            if (!opportunity) return;
+
+            editingId = id;
+            if (formTitle) formTitle.textContent = 'Edit Opportunity';
+            if (submitBtn) submitBtn.textContent = 'Update Opportunity';
+            if (cancelBtn) cancelBtn.classList.remove('hidden');
+
+            document.getElementById('title').value = opportunity.title;
+            document.getElementById('description').value = opportunity.description || '';
+            document.getElementById('link').value = opportunity.link || '';
+            document.getElementById('deadline').value = opportunity.deadline;
+
+            // Load requirements
+            if (requirementsList) {
+                requirementsList.innerHTML = '';
+                
+                if (opportunity.requirements && opportunity.requirements.length) {
+                    opportunity.requirements.forEach(req => {
+                        addRequirement(req.text);
+                    });
+                } else {
+                    addRequirement();
+                }
+            }
+
+            // Scroll to form
+            document.querySelector('.controls')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingId = null;
+            if (formTitle) formTitle.textContent = 'Add New Opportunity';
+            if (submitBtn) submitBtn.textContent = 'Add Opportunity';
+            if (cancelBtn) cancelBtn.classList.add('hidden');
+            if (form) form.reset();
+            resetRequirements();
+        }
+
+        async function deleteOpportunity(id) {
+            if (confirm('Are you sure you want to delete this opportunity?')) {
+                try {
+                    const docRef = doc(db, 'opportunities', id);
+                    await deleteDoc(docRef);
+                    loadOpportunities();
+                } catch (error) {
+                    console.error('Error deleting opportunity:', error);
+                    alert('Error deleting opportunity. Please try again.');
+                }
+            }
+        }
+
+        async function toggleRequirement(opportunityId, requirementIndex) {
+            try {
+                const opportunity = opportunities.find(opp => opp.id === opportunityId);
+                if (!opportunity || !opportunity.requirements) return;
+                
+                opportunity.requirements[requirementIndex].completed = !opportunity.requirements[requirementIndex].completed;
+                
+                const docRef = doc(db, 'opportunities', opportunityId);
+                await updateDoc(docRef, {
+                    requirements: opportunity.requirements
+                });
+                
+                filterAndDisplayOpportunities();
+            } catch (error) {
+                console.error('Error updating requirement:', error);
+                alert('Error updating requirement. Please try again.');
+            }
+        }
+
+        function addRequirement(text = '') {
+            if (!requirementsList) return;
+            
+            const requirementItem = document.createElement('div');
+            requirementItem.className = 'requirement-item';
+            requirementItem.innerHTML = `
+                <input type="text" placeholder="Enter requirement..." class="requirement-input" value="${text}">
+                <button type="button" class="remove-req">Remove</button>
+            `;
+            requirementsList.appendChild(requirementItem);
+        }
+
+        function removeRequirement(button) {
+            if (requirementsList && requirementsList.children.length > 1) {
+                button.closest('.requirement-item').remove();
+            }
+        }
+
+        function resetRequirements() {
+            if (!requirementsList) return;
+            
+            requirementsList.innerHTML = '';
+            addRequirement();
+        }
+
+        // Event delegation for dynamic elements
+        document.addEventListener('click', function(e) {
+            // Handle requirement checkboxes
+            if (e.target.matches('.requirement-check input[type="checkbox"]')) {
+                const oppId = e.target.dataset.oppId;
+                const reqIndex = parseInt(e.target.dataset.reqIndex);
+                toggleRequirement(oppId, reqIndex);
+            }
+            
+            // Handle edit buttons
+            if (e.target.matches('.btn-edit')) {
+                editOpportunity(e.target.dataset.oppId);
+            }
+            
+            // Handle delete buttons
+            if (e.target.matches('.btn-delete')) {
+                deleteOpportunity(e.target.dataset.oppId);
+            }
+        });
+
+        // Initialize with one requirement input
+        resetRequirements();
+    </script>
+</body>
+</html>
